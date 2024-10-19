@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - SERVER_PORT=8081
-      - SENSORS_COUNT=10000
+      - SENSORS_COUNT=3000
       - SENSORS_MIN_TEMPERATURE=0
       - SENSORS_MIN_DEVIATION_TEMPERATURE=-1000
       - SENSORS_MAX_TEMPERATURE=50
