@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: sensor-imitator
+
+logging:
+  level:
+    omc: info
+
+server:
+  port: ${SERVER_PORT:8081}
+
+
+sensors:
+  count: ${SENSORS_COUNT:10000}
+  min:
+    temperature: ${SENSORS_MIN_TEMPERATURE:0}
+    deviation:
+      temperature: ${SENSORS_MIN_DEVIATION_TEMPERATURE:-1000}
+  max:
+    temperature: ${SENSORS_MAX_TEMPERATURE:50}
+    deviation:
+      temperature: ${SENSORS_MAX_DEVIATION_TEMPERATURE:2000}
+  deviation:
+    interval: ${SENSORS_DEVIATION_INTERVAL:10}
+  endpoint:
+    host: ${SENSORS_ENDPOINT_HOST:http://localhost}
+    port: ${SENSORS_ENDPOINT_PORT:8082}
+    path: ${SENSORS_ENDPOINT_PATH:sensors/data}
+  sending:
+    rate: ${SENSORS_SENDING_RATE:15000}
