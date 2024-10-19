@@ -1,13 +1,11 @@
 package omc.sensormonitoring.controller;
 
 import lombok.RequiredArgsConstructor;
-import omc.sensormonitoring.model.SensorDeviatedData;
-import omc.sensormonitoring.model.SensorFaceData;
+import omc.sensormonitoring.model.*;
 import omc.sensormonitoring.service.SensorService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**

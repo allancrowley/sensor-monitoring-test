@@ -1,20 +1,15 @@
 package omc.sensormonitoring.controller.handler;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.util.stream.Collectors;
-
 import static omc.sensormonitoring.controller.handler.ErrorMessages.*;
 
 /**
@@ -26,8 +21,6 @@ import static omc.sensormonitoring.controller.handler.ErrorMessages.*;
 @ControllerAdvice
 @Slf4j
 public class SensorsExceptionsController {
-
-
 
     /**
      * Constructs a standardized response entity with a given message.
@@ -111,9 +104,8 @@ public class SensorsExceptionsController {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<String> methodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
-        String message = TYPE_MISMATCH_MESSAGE;
 
-        return returnResponse(message);
+        return returnResponse(TYPE_MISMATCH_MESSAGE);
     }
 
 
@@ -126,8 +118,7 @@ public class SensorsExceptionsController {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<String> jsonFieldTypeMismatchException(HttpMessageNotReadableException e) {
-        String message = JSON_TYPE_MISMATCH_MESSAGE;
 
-        return returnResponse(message);
+        return returnResponse(JSON_TYPE_MISMATCH_MESSAGE);
     }
 }

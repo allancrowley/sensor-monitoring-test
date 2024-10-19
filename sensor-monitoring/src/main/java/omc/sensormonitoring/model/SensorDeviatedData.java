@@ -25,15 +25,29 @@ import omc.sensormonitoring.model.composed.SensorDataId;
 @IdClass(SensorDataId.class)
 public class SensorDeviatedData {
 
+    /**
+     * The unique identifier of the sensor.
+     * This field is part of the composite primary key.
+     */
     @Id
     private Long id;
 
+    /**
+     * The timestamp of the recorded temperature.
+     * This field is part of the composite primary key.
+     */
     @Id
     private long timestamp;
 
+    /**
+     * The face direction of the sensor from which the temperature is measured.
+     */
     @Enumerated(EnumType.STRING)
     private FaceDirection face;
 
+    /**
+     * The temperature recorded by the sensor that has deviated from the expected range.
+     */
     private double temperature;
 
 }
