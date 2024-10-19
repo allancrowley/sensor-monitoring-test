@@ -38,12 +38,19 @@ import java.util.stream.Collectors;
 public class SensorServiceImpl implements SensorService {
     private final ConcurrentLinkedQueue<SensorDataDto> sensorQueue = new ConcurrentLinkedQueue<>();
     private final ScheduledExecutorService batchExecutor = Executors.newScheduledThreadPool(5);
+
+    private final SensorDeviatedRepository sensorDeviatedRepository;
+    private final FaceAvgRepository faceAvgRepository;
+    private final SensorRepository sensorRepository;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${sensors.db.batch.size}")
     private int BATCH_SIZE;
     @Value("${sensors.db.batch.frequency}")
     private int BATCH_SAVE_FREQUENCY;
+    @Value("${sensors.temperature.acceptable.deviation}")
+    private double DEVIATION_PERCENTAGE;
 
 
     private static final long HOUR_IN_MILLIS = 60 * 60 * 1000;
@@ -61,15 +68,6 @@ public class SensorServiceImpl implements SensorService {
         sensorQueue.add(sensorDataDto);
     }
 
-    @Override
-    public List<SensorFaceData> getAvgFaceDirectionTemperatures(long startOfPeriod) {
-        return List.of();
-    }
-
-    @Override
-    public List<SensorDeviatedData> getMalfunctioningSensors() {
-        return List.of();
-    }
 
 
     void flushQueue() {
@@ -100,6 +98,116 @@ public class SensorServiceImpl implements SensorService {
 
         jdbcTemplate.batchUpdate(INSERT_SENSOR_DATA_QUERY, batchArgs);
         log.debug("Saved into DB batch with size {}", batchArgs.size());
+    }
+
+
+    public List<SensorFaceData> getAvgFaceDirectionTemperatures(long startOfPeriod) {
+        return faceAvgRepository.findAllFromPeriod(startOfPeriod);
+    }
+
+
+
+    public List<SensorDeviatedData> getMalfunctioningSensors() {
+        return sensorDeviatedRepository.findAll();
+    }
+
+
+
+    @Scheduled(cron = "${sensors.scheduling.cron}")
+    @Transactional
+    public void calculateAndStoreHourlyAverageData() {
+        try {
+            long currentRoundHour = getRoundHourInMillis(System.currentTimeMillis());
+            long previousRoundHour = currentRoundHour - HOUR_IN_MILLIS;
+            log.info("Extracting data for period: {} - {} at {}",
+                    convertMillisToLocalTime(previousRoundHour),
+                    convertMillisToLocalTime(currentRoundHour),
+                    convertMillisToLocalTime(System.currentTimeMillis()));
+
+            List<SensorData> avgBySensor = sensorRepository.findAggregatedSensorData(previousRoundHour, currentRoundHour);
+            if (avgBySensor.isEmpty()) {
+                log.warn("No sensor data found");
+                return;
+            }
+            log.debug("Extracted average temperature by sensor for the last hour at: {}",
+                    convertMillisToLocalTime(System.currentTimeMillis()));
+            processAndSaveSensorData(avgBySensor, currentRoundHour);
+        } catch (DataAccessException e) {
+            log.error("Error handling sensors data: {}", e.getMessage());
+        }
+    }
+
+
+    private void processAndSaveSensorData(List<SensorData> avgBySensor, long currentRoundHour) {
+        Map<FaceDirection, Double> avgByDirection = calculateFaceAvgTemperature(avgBySensor);
+        List<SensorDeviatedData> deviatedSensors = calculateDeviatedSensors(avgByDirection, avgBySensor);
+        sensorDeviatedRepository.saveAll(deviatedSensors);
+        List<SensorFaceData> sensorFaceList = calculateFaceDirection(avgByDirection, currentRoundHour);
+        faceAvgRepository.saveAll(sensorFaceList);
+        deleteOldSensorData(currentRoundHour - HOUR_IN_MILLIS, currentRoundHour);
+    }
+
+
+
+    private void deleteOldSensorData(long previousRoundHour, long currentRoundHour) {
+        sensorRepository.deleteSensorDataInRange(previousRoundHour, currentRoundHour);
+        log.debug("Removed hourly data from DB at: {}",
+                convertMillisToLocalTime(System.currentTimeMillis()));
+    }
+
+
+
+    private List<SensorDeviatedData> calculateDeviatedSensors(Map<FaceDirection, Double> faceAvgTemperature, List<SensorData> avgData) {
+        long curHour = getRoundHourInMillis(System.currentTimeMillis());
+
+        return avgData.stream()
+                .filter(sensor -> {
+                    double avgTemperature = Optional.ofNullable(faceAvgTemperature.get(sensor.getFace()))
+                            .orElse(0.0);
+                    double maxDeviation = avgTemperature * DEVIATION_PERCENTAGE;
+                    return Math.abs(sensor.getTemperature() - avgTemperature) > maxDeviation;
+                })
+                .map(d -> new SensorDeviatedData(d.getId(), curHour, d.getFace(), d.getTemperature()))
+                .peek(d -> log.error("Deviation detected for sensor ID {} at {}", d.getId(), d.getTemperature()))
+                .toList();
+    }
+
+
+
+    private Map<FaceDirection, Double> calculateFaceAvgTemperature(List<SensorData> avgData) {
+
+        return avgData.stream()
+                .collect(Collectors.groupingBy(
+                        SensorData::getFace,
+                        Collectors.collectingAndThen(
+                                Collectors.averagingDouble(SensorData::getTemperature),
+                                avg -> Math.round(avg * 100.0) / 100.0
+                        )
+                ));
+    }
+
+
+
+    private List<SensorFaceData> calculateFaceDirection(Map<FaceDirection, Double> avgByDirection, long currentHour) {
+
+        return avgByDirection.entrySet().stream()
+                .map(e -> new SensorFaceData(currentHour, e.getKey(), e.getValue()))
+                .toList();
+    }
+
+
+
+    private static long getRoundHourInMillis(long currentTime) {
+
+        return currentTime - (currentTime % HOUR_IN_MILLIS);
+    }
+
+
+
+    private static LocalTime convertMillisToLocalTime(long millis) {
+        Instant instant = Instant.ofEpochMilli(millis);
+
+        return instant.atZone(ZoneId.systemDefault()).toLocalTime();
     }
 
 

@@ -30,3 +30,6 @@ sensors:
     batch:
       size: ${BATCH_SIZE:25000}
       frequency: ${BATCH_FREQUENCY:2}
+  temperature:
+    acceptable:
+      deviation: ${DEVIATION:0.2}
