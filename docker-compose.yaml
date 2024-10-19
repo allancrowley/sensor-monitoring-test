@@ -1,0 +1,65 @@
+version: "3"
+
+    
+services:
+  sensor-monitoring:
+    build:
+      context: ./sensor-monitoring
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=sensor_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - SERVER_PORT=8082
+      - INPUT_PATH=/sensors/data
+      - OUTPUT_PATH=/sensors/view
+      - BATCH_SIZE=25000
+      - BATCH_FREQUENCY=2
+      - DEVIATION=0.2
+    ports:
+      - "8082:8082"
+    networks:
+      - sensor_network
+
+  sensor-imitator:
+    build:
+      context: ./sensor-imitator
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_PORT=8081
+      - SENSORS_COUNT=3000
+      - SENSORS_MIN_TEMPERATURE=0
+      - SENSORS_MIN_DEVIATION_TEMPERATURE=-1000
+      - SENSORS_MAX_TEMPERATURE=50
+      - SENSORS_MAX_DEVIATION_TEMPERATURE=2000
+      - SENSORS_DEVIATION_INTERVAL=1000
+      - SENSORS_ENDPOINT_HOST=http://sensor-monitoring
+      - SENSORS_ENDPOINT_PORT=8082
+      - SENSORS_ENDPOINT_PATH=sensors/data
+      - SENSORS_SENDING_RATE=1000
+    networks:
+      - sensor_network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sensor_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - sensor_network
+
+
+networks:
+  sensor_network:
+    driver: bridge
+
+volumes:
+  pgdata:

@@ -1,4 +1,4 @@
-package omc.sensorimitator.dto;
+package omc.sensormonitoring.model;
 
 /**
  * Enum representing the possible directions that a sensor can face.

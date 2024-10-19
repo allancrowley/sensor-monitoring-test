@@ -11,7 +11,7 @@ server:
 
 
 sensors:
-  count: ${SENSORS_COUNT:10000}
+  count: ${SENSORS_COUNT:5000}
   min:
     temperature: ${SENSORS_MIN_TEMPERATURE:0}
     deviation:
@@ -27,4 +27,4 @@ sensors:
     port: ${SENSORS_ENDPOINT_PORT:8082}
     path: ${SENSORS_ENDPOINT_PATH:sensors/data}
   sending:
-    rate: ${SENSORS_SENDING_RATE:15000}
+    rate: ${SENSORS_SENDING_RATE:1000}

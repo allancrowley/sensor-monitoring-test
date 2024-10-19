@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor Data Monitoring</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon">
+
+</head>
+<body>
+
+<h1>Sensor Data Monitoring</h1>
+
+<h3>Average Face Temperatures by Hour</h3>
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>Time Range</th>
+            <th>Face Direction</th>
+            <th>Average Temperature</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="avgFace : ${avgFaceTemperatures}">
+            <td th:text="${#dates.format(avgFace.timestamp - 3600000, 'yyyy-MM-dd HH:mm')} + ' - ' + ${#dates.format(avgFace.timestamp, 'HH:mm')}"></td>
+            <td th:text="${avgFace.face}"></td>
+            <td th:text="${avgFace.temperature}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<h3>Malfunctioning Sensors</h3>
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>Time Range</th>
+            <th>Sensor ID</th>
+            <th>Face Direction</th>
+            <th>Average Temperature</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="sensor : ${deviatedSensors}">
+            <td th:text="${#dates.format(sensor.timestamp - 3600000, 'yyyy-MM-dd HH:mm')} + '  -  ' + ${#dates.format(sensor.timestamp, 'HH:mm')}"></td>
+            <td th:text="${sensor.id}"></td>
+            <td th:text="${sensor.face}"></td>
+            <td th:text="${sensor.temperature}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
