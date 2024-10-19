@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: sensor-monitoring
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:sensor_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:your_password}
+    hikari:
+      maximum-pool-size: 30
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: ${SERVER_PORT:8082}
+
+logging:
+  level:
+    omc: trace
+
+sensors:
+  path:
+    input: ${INPUT_PATH:/sensors/data}
+    output: ${OUTPUT_PATH:/sensors/view}
+  scheduling:
+    cron: 0 2 * * * ?
+  db:
+    batch:
+      size: ${BATCH_SIZE:25000}
+      frequency: ${BATCH_FREQUENCY:1}
+  temperature:
+    acceptable:
+      deviation: ${DEVIATION:0.2}
