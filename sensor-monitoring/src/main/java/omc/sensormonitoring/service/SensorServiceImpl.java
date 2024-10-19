@@ -208,7 +208,7 @@ public class SensorServiceImpl implements SensorService {
                     return Math.abs(sensor.getTemperature() - avgTemperature) > maxDeviation;
                 })
                 .map(d -> new SensorDeviatedData(d.getId(), curHour, d.getFace(), d.getTemperature()))
-                .peek(d -> log.error("Deviation detected for sensor ID {} at {}", d.getId(), d.getTemperature()))
+                .peek(d -> log.error("Deviation detected for sensor ID {} at {}", d.getId(), convertMillisToLocalTime(d.getTimestamp())))
                 .toList();
     }
 

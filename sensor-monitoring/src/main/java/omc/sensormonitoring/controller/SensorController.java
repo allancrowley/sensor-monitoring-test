@@ -30,7 +30,6 @@ public class SensorController {
      */
     @PostMapping("${sensors.path.input}")
     public ResponseEntity<String> receiveSensorData(@RequestBody @Valid SensorDataDto sensorData) {
-        log.warn(sensorData.toString());
         sensorService.saveSensorData(sensorData);
         return ResponseEntity.ok("Sensor data received.");
     }

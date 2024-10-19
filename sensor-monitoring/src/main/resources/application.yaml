@@ -26,7 +26,7 @@ sensors:
     input: ${INPUT_PATH:/sensors/data}
     output: ${OUTPUT_PATH:/sensors/view}
   scheduling:
-    cron: 0 2 * * * ?
+    cron: 0 8 * * * ?
   db:
     batch:
       size: ${BATCH_SIZE:25000}
