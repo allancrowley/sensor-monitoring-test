@@ -17,3 +17,16 @@ spring:
 
 server:
   port: ${SERVER_PORT:8082}
+
+logging:
+  level:
+    omc: trace
+
+
+sensors:
+  path:
+    input: ${INPUT_PATH:/sensors/data}
+  db:
+    batch:
+      size: ${BATCH_SIZE:25000}
+      frequency: ${BATCH_FREQUENCY:2}
