@@ -2,6 +2,18 @@
 
 A web-based application for real-time monitoring of sensor data, displaying average temperatures and identifying malfunctioning sensors.
 
+## Table of Contents
+
+- [Assumptions](#assumptions)
+- [Modules](#modules)
+- [Architecture](#architecture)
+- [Database](#database)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API](#api)
+
+
 ## Assumptions
 
 1. **Data Flow Management**: It is assumed that the server can handle the incoming data flow efficiently, and that data will arrive without significant delays. For production-level deployment, it is crucial to implement additional mechanisms to verify that the received data corresponds to the current or previous time periods.
@@ -88,15 +100,4 @@ Displays the current sensor data and analytics.
 `POST /sensors/data`
 
 Receives and processes raw sensor data.
-
-## Table of Contents
-
-- [Assumptions](#assumptions)
-- [Modules](#modules)
-- [Architecture](#architecture)
-- [Database](#database)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API](#api)
 
