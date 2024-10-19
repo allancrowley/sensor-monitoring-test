@@ -1,16 +1,12 @@
 package omc.sensormonitoring.service;
 
 import omc.sensormonitoring.model.SensorData;
-import omc.sensormonitoring.repository.FaceAvgRepository;
-import omc.sensormonitoring.repository.SensorDeviatedRepository;
-import omc.sensormonitoring.repository.SensorRepository;
+import omc.sensormonitoring.repository.*;
 import omc.sensormonitoring.util.DataUtils;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
@@ -28,9 +24,6 @@ public class SensorServiceTests {
 
     @Mock
     SensorDeviatedRepository sensorDeviatedRepository;
-
-    @Mock
-    JdbcTemplate jdbcTemplate;
 
     @InjectMocks
     SensorServiceImpl serviceUnderTests;
