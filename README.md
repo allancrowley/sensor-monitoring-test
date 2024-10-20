@@ -45,7 +45,7 @@ PostgreSQL was selected for this project as it handles the current data volume w
 
 The database uses the following tables:
 
-1. **sensor_data**: Stores raw sensor data, cleared every hour.
+1. **sensor_data**: Stores raw sensor data, cleared at 02 minutes past each hour for more precise data management.
 2. **sensor_face_data**: Stores hourly averages of sensor data categorized by cardinal directions.
 3. **sensor_deviated_data**: Stores hourly records of malfunctioning sensors.
 
