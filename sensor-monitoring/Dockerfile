@@ -19,5 +19,6 @@ ENV OUTPUT_PATH=/sensors/view
 ENV BATCH_SIZE=25000
 ENV BATCH_FREQUENCY=2
 ENV DEVIATION=0.2
+ENV TZ=Europe/Tel_Aviv
 
 ENTRYPOINT [ "java", "-jar", "app.jar" ]
