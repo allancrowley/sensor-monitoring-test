@@ -2,6 +2,19 @@
 
 A web-based application for real-time monitoring of sensor data, displaying average temperatures and identifying malfunctioning sensors.
 
+## Table of Contents
+
+- [Assumptions](#assumptions)
+- [Modules](#modules)
+- [Architecture](#architecture)
+- [Database](#database)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API](#api)
+- [Environment Variables](#environment-variables)
+
+
 ## Assumptions
 
 1. **Data Flow Management**: It is assumed that the server can handle the incoming data flow efficiently, and that data will arrive without significant delays. For production-level deployment, it is crucial to implement additional mechanisms to verify that the received data corresponds to the current or previous time periods.
@@ -32,7 +45,7 @@ PostgreSQL was selected for this project as it handles the current data volume w
 
 The database uses the following tables:
 
-1. **sensor_data**: Stores raw sensor data, cleared every hour.
+1. **sensor_data**: Stores raw sensor data, cleared at 02 minutes past each hour for more precise data management.
 2. **sensor_face_data**: Stores hourly averages of sensor data categorized by cardinal directions.
 3. **sensor_deviated_data**: Stores hourly records of malfunctioning sensors.
 
@@ -86,17 +99,42 @@ Displays the current sensor data and analytics.
 - Sensor Data Endpoint:
   
 `POST /sensors/data`
-
 Receives and processes raw sensor data.
 
-## Table of Contents
+## Environment Variables
 
-- [Assumptions](#assumptions)
-- [Modules](#modules)
-- [Architecture](#architecture)
-- [Database](#database)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API](#api)
+### sensor-monitoring
+- `DB_HOST=postgres` - The hostname for the PostgreSQL database container within the Docker network. The program will access the database using this host.
+- `DB_PORT=5432` - The port used to communicate with the PostgreSQL database inside the Docker network.
+- `DB_NAME=sensor_db` - The name of the database where sensor data will be stored.
+- `DB_USERNAME=postgres` - The username for authenticating access to the database.
+- `DB_PASSWORD=password` - The password for authenticating access to the database.
+- `SERVER_PORT=8082` - The port on which the application will listen for incoming requests.
+- `INPUT_PATH=/sensors/data` - The endpoint path for receiving sensor data payloads.
+- `OUTPUT_PATH=/sensors/view` - The endpoint path for accessing the dashboard and viewing sensor data.
+- `BATCH_SIZE=25000` - The maximum number of sensor data points that will be written to the database in a single transaction.
+- `BATCH_FREQUENCY=2` - The frequency (in seconds) for writing incoming sensor data to the database in batches.
+- `DEVIATION=0.2` - The acceptable percentage of temperature data deviation when analyzing malfunctioning sensors. If a sensor’s temperature data deviates by more than this percentage from the average, it is flagged as malfunctioning.
+
+### sensor-imitator
+
+- `SERVER_PORT=8081` - The port on which the data generator application will run.
+- `SENSORS_COUNT=3000` - The number of sensors for which random temperature data will be generated.
+- `SENSORS_MIN_TEMPERATURE=0` - The lower threshold for the randomly generated normal temperature values.
+- `SENSORS_MAX_TEMPERATURE=50` - The upper threshold for the randomly generated normal temperature values.
+- `SENSORS_MIN_DEVIATION_TEMPERATURE=-1000` - The lower threshold for the randomly generated temperature values when simulating malfunctioning sensors.
+- `SENSORS_MAX_DEVIATION_TEMPERATURE=2000` - The upper threshold for the randomly generated temperature values when simulating malfunctioning sensors.
+- `SENSORS_DEVIATION_INTERVAL=1000` - Defines how often malfunctioning sensors appear. For example, if SENSORS_COUNT % SENSORS_DEVIATION_INTERVAL == 0, the corresponding sensor will be flagged as malfunctioning.
+- `SENSORS_ENDPOINT_HOST=http://sensor-monitoring` - The host to which the sensor data will be sent. This is typically the backend service responsible for processing sensor data.
+- `SENSORS_ENDPOINT_PORT=8082` - The port on the target system to which sensor data will be sent.
+- `SENSORS_ENDPOINT_PATH=sensors/data` - The API endpoint path for sending sensor data.
+- `SENSORS_SENDING_RATE=1000` - The frequency (in milliseconds) at which data from each sensor is sent to the endpoint.
+
+### postgres
+
+- `POSTGRES_USER: postgres` - The username for authenticating access to the database.
+- `POSTGRES_PASSWORD: password` - The password for authenticating access to the database.
+- `POSTGRES_DB: sensor_db` - The name of the database where sensor data will be stored.
+
+If you need to change the settings of one of the services, you should update the corresponding environment variable in the `docker-compose.yaml` file or in the related `Dockerfile`, especially if the module is launched independently from the main cluster.
 
